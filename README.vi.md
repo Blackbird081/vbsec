@@ -152,7 +152,7 @@ Xem [docs/vi/usage.md](docs/vi/usage.md) để biết toàn bộ tuỳ chọn, b
 | 14 | `JWT-NONE-ALGORITHM` | NGHIÊM TRỌNG | typescript, python |
 | 15 | `CORS-MISCONFIG` | CAO | typescript, python |
 | 16 | `UNRESTRICTED-FILE-UPLOAD` | NGHIÊM TRỌNG | — |
-| 17 | `VERBOSE-ERROR-DEBUG-MODE` | CAO | go, php, typescript, python |
+| 17 | `VERBOSE-ERROR-DEBUG-MODE` | CAO | go, php, typescript, python, dotnet |
 | 18 | `MISSING-RATE-LIMIT` | CAO | — |
 | 19 | `RACE-CONDITION` | CAO | — |
 | 20 | `OUTDATED-DEPENDENCY` | CAO | — |
@@ -176,7 +176,7 @@ Repo luôn chào đón đóng góp: báo lỗi, sửa rule, thêm chuyên sâu c
 - v0.3 — Phạm vi mặc định chuyển sang toàn repo, lưu báo cáo cố định, giải thích chi tiết cho từng finding ✅
 - v0.4 — Chuyên sâu Python (SQLAlchemy/Django ORM SQLi, pickle/yaml deserialization RCE, Werkzeug debugger, FastAPI/Flask/Django CSRF + CORS, PyJWT algorithms, subprocess shell=True) ✅
 - v0.5 (hiện tại) — Hỗ trợ đa nền tảng: OpenAI Codex CLI + Google Antigravity (sequential LARGE mode, chia sẻ bộ rule, `install.sh` + `sync-skills.sh`) ✅
-- Chuyên sâu .NET/C# (EF Core raw SQL, ASP.NET Core model binding, deserialization Newtonsoft.Json/formatter cũ, Process.Start) ✅
+- Chuyên sâu .NET/C# (EF Core raw SQL, ASP.NET Core model binding, deserialization Newtonsoft.Json/formatter cũ, Developer Exception Page/debug mode, Process.Start) ✅
 - v0.6+ — Ruby, Java, Rust — theo nhu cầu cộng đồng
 
 ## Miễn trừ trách nhiệm

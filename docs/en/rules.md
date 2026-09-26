@@ -28,7 +28,7 @@ Compact overview of each rule with unsafe/safe examples. For the full reasoning,
 | 14 | [JWT-NONE-ALGORITHM](#rule-14--jwt-none-algorithm) | CRITICAL | typescript, python |
 | 15 | [CORS-MISCONFIG](#rule-15--cors-misconfig) | HIGH | typescript, python |
 | 16 | [UNRESTRICTED-FILE-UPLOAD](#rule-16--unrestricted-file-upload) | CRITICAL | — |
-| 17 | [VERBOSE-ERROR-DEBUG-MODE](#rule-17--verbose-error-debug-mode) | HIGH | go, php, typescript, python |
+| 17 | [VERBOSE-ERROR-DEBUG-MODE](#rule-17--verbose-error-debug-mode) | HIGH | go, php, typescript, python, dotnet |
 | 18 | [MISSING-RATE-LIMIT](#rule-18--missing-rate-limit) | HIGH | — |
 | 19 | [RACE-CONDITION](#rule-19--race-condition) | HIGH | — |
 | 20 | [OUTDATED-DEPENDENCY](#rule-20--outdated-dependency) | HIGH | — |
@@ -446,7 +446,7 @@ move_uploaded_file($_FILES['file']['tmp_name'], '/var/uploads-private/' . $newNa
 ### Rule 17 — VERBOSE-ERROR-DEBUG-MODE
 
 **Severity max:** HIGH
-**Applies to:** all (+ go, php, typescript, python)
+**Applies to:** all (+ go, php, typescript, python, dotnet)
 
 `DEBUG=true` in production, stack traces leaking to responses, detailed errors revealing DB query / file paths. Attackers map attack surface from this info.
 
@@ -584,7 +584,7 @@ Some rules have language-specific overrides that catch idioms more accurately. W
 | PHP | [`skills/vbs-scan-security/rules/languages/php/`](../../skills/vbs-scan-security/rules/languages/php/) | SQL-INJECTION (mysqli/PDO), INSECURE-DESERIALIZATION (unserialize), CSRF (Laravel), VERBOSE-ERROR (display_errors), COMMAND-INJECTION (exec/system) |
 | TypeScript / JS | [`skills/vbs-scan-security/rules/languages/typescript/`](../../skills/vbs-scan-security/rules/languages/typescript/) | SQL-INJECTION (Sequelize/Prisma/TypeORM/Mongoose), XSS (React/Vue/Angular), MASS-ASSIGNMENT, INSECURE-DESERIALIZATION (js-yaml), SSRF, CSRF, JWT-NONE-ALGORITHM, CORS-MISCONFIG, VERBOSE-ERROR, COMMAND-INJECTION (child_process) |
 | Python | [`skills/vbs-scan-security/rules/languages/python/`](../../skills/vbs-scan-security/rules/languages/python/) | SQL-INJECTION (SQLAlchemy text/Django raw), MASS-ASSIGNMENT, INSECURE-DESERIALIZATION (pickle/yaml.load), SSRF, CSRF (Django), JWT-NONE-ALGORITHM (PyJWT), CORS-MISCONFIG, VERBOSE-ERROR (Flask/Django debug), COMMAND-INJECTION (subprocess shell=True) |
-| .NET / C# | [`skills/vbs-scan-security/rules/languages/dotnet/`](../../skills/vbs-scan-security/rules/languages/dotnet/) | SQL-INJECTION (EF Core raw SQL), MASS-ASSIGNMENT (ASP.NET Core model binding), INSECURE-DESERIALIZATION (Newtonsoft/legacy formatters), COMMAND-INJECTION (Process.Start) |
+| .NET / C# | [`skills/vbs-scan-security/rules/languages/dotnet/`](../../skills/vbs-scan-security/rules/languages/dotnet/) | SQL-INJECTION (EF Core raw SQL), MASS-ASSIGNMENT (ASP.NET Core model binding), INSECURE-DESERIALIZATION (Newtonsoft/legacy formatters), VERBOSE-ERROR (Developer Exception Page), COMMAND-INJECTION (Process.Start) |
 
 Want to add another language (Ruby, Java, Rust)? See [contributing.md](contributing.md).
 
