@@ -14,7 +14,7 @@
   <b><a href="#cài-đặt">Cài đặt</a></b> ·
   <b><a href="docs/examples/bao-cao-mau.md">Xem báo cáo mẫu</a></b> ·
   <b><a href="#vbsec-bắt-được-những-lỗi-nào">21 loại lỗi</a></b> ·
-  <b><a href="README.md">English</a></b>
+  <b><a href="README.md">🇬🇧 English</a></b>
 </p>
 
 <p align="center">

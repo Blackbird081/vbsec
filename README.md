@@ -14,7 +14,7 @@
   <b><a href="#install">Install</a></b> ·
   <b><a href="docs/examples/sample-report.md">Sample report</a></b> ·
   <b><a href="#what-vbsec-catches">21 vulnerability types</a></b> ·
-  <b><a href="README.vi.md">Tiếng Việt</a></b>
+  <b><a href="README.vi.md">🇻🇳 Tiếng Việt</a></b>
 </p>
 
 <p align="center">
