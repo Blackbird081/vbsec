@@ -12,7 +12,7 @@ vbsec hiện chuyên sâu 5 ngôn ngữ — mỗi ngôn ngữ map sang đúng 1 
 
 | Lang (vbsec) | OSV ecosystem | Manifest/lockfile đọc | Cách trích PackageId + Version (illustrative) |
 |---|---|---|---|
-| `dotnet` | `NuGet` | `*.csproj` (`<PackageReference Include="X" Version="Y" />`), `packages.lock.json` | Regex `Include="([^"]+)"\s+Version="([^"]+)"` trong `.csproj`; hoặc field `resolved` trong `packages.lock.json` (chính xác hơn — version đã resolve) |
+| `dotnet` | `NuGet` | `*.csproj` (`<PackageReference Include="X" Version="Y" />`), `Directory.Packages.props` (Central Package Management: `<PackageVersion Include="X" Version="Y" />`; `.csproj` khi đó chỉ có `<PackageReference Include="X" />`, hoặc `VersionOverride="Y"` để ghi đè), `packages.lock.json` | Regex `Include="([^"]+)"\s+Version="([^"]+)"` trong `.csproj`; hoặc field `resolved` trong `packages.lock.json` (chính xác hơn — version đã resolve) |
 | `go` | `Go` | `go.mod` (`require X vY`) | Mỗi dòng trong block `require (...)` hoặc `require X vY` đơn dòng |
 | `typescript` | `npm` | `package-lock.json` (lockfile v2/v3, object `packages`) | Ưu tiên `package-lock.json` hơn `package.json` — có version đã resolve thật, không phải range (`^1.2.3`). Walk `packages["node_modules/<name>"].version` |
 | `php` | `Packagist` | `composer.lock` (`packages[].name` + `.version`) | JSON parse trực tiếp — `composer.lock` luôn có version cụ thể |

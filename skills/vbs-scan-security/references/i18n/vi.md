@@ -185,6 +185,8 @@ Bảng key → text cho output report khi `lang=vi`. SKILL.md và workflows ph�
 | `msg_autofix_needs_git` | ⚠️ `--auto-fix` yêu cầu git repository (patch được kiểm tra và apply qua `git apply`). Bỏ qua bước auto-fix. |
 | `msg_autofix_dirty_tree` | ⚠️ Working tree có thay đổi chưa commit ngoài phạm vi quét. Khuyến nghị commit hoặc backup trước khi chạy `--auto-fix`. |
 | `msg_autofix_snapshot_scope` | ℹ️ Scope `commit id`/`pr id` quét trên snapshot tạm, không phải working tree — auto-fix chỉ ghi gợi ý patch ra `vbsec-reports/patches/`, không sửa file nào. |
+| `msg_autofix_staged_scope` | ℹ️ Scope `staged`: apply patch chỉ sửa working tree, không sửa index, nên commit tiếp theo vẫn chứa lỗi. Auto-fix chỉ ghi gợi ý patch ra `vbsec-reports/patches/`; patch nào muốn giữ thì `git apply` rồi `git add`. |
+| `msg_autofix_needs_run_tests` | ℹ️ Bản nâng version dependency chỉ được verify bằng cách chạy test của project, mà test có thể đụng hệ thống thật (DB, dịch vụ trong `.env`). Thêm `--run-tests` để cho phép; hiện chỉ ghi gợi ý patch. |
 | `autofix_status_applied` | Đã sửa và verify build thành công |
 | `autofix_status_failed` | Không sửa được sau {n} lần thử — cần sửa tay |
 | `autofix_status_suggested` | Chỉ tạo gợi ý patch (chưa có lệnh build để verify) — xem `vbsec-reports/patches/` |

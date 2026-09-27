@@ -430,7 +430,8 @@ jq -e '[.findings[] | select(.rule_id=="VULNERABLE-DEPENDENCY" and .severity=="C
 - **Bắt buộc git repo** — patch được kiểm tra và apply qua `git apply`. Không có git → skill tự skip bước này, chỉ báo warning.
 - **Revert an toàn** — trước mỗi patch, vbsec snapshot các file sắp bị ghi (gồm cả thay đổi chưa commit và file untracked). Build fail → khôi phục đúng bản trước patch, không dùng `git checkout`.
 - **Kiểm tra trước khi apply** — thiếu build tool (vd không có `dotnet`) hoặc project vốn đã build lỗi → không apply gì, chỉ ghi gợi ý patch.
-- **Dependency** — bản nâng version chỉ được giữ khi test của chính project pass trên version mới (Go: `go test ./...`, .NET: `dotnet test`); project không có test thì chỉ gợi ý patch. Dependency npm, Composer, Python luôn chỉ có gợi ý patch: muốn test phải cài package và chạy install script, không hoàn tác gọn được.
+- **Dependency** — bản nâng version chỉ được giữ khi test của chính project pass trên version mới (Go: `go test ./...`, .NET: `dotnet test`); project không có test thì chỉ gợi ý patch. Chạy test cần thêm `--run-tests`: test có thể đụng hệ thống thật (vd integration test đọc `DATABASE_URL` từ `.env`), chỉ bật khi bộ test an toàn.
+- **Scope `staged`** — auto-fix chỉ ghi gợi ý patch, vì apply patch chỉ sửa working tree chứ không sửa index. Dependency npm, Composer, Python luôn chỉ có gợi ý patch: muốn test phải cài package và chạy install script, không hoàn tác gọn được.
 - **Commit hoặc backup working tree trước** — auto-fix ghi đè trực tiếp file nguồn (dù có build verify, đây vẫn là thay đổi thật trên đĩa).
 - Chỉ CRITICAL/HIGH được auto-fix; MEDIUM/LOW luôn để nguyên.
 - Ngôn ngữ chưa có build command tin cậy (ngoài .NET/Go/TS/PHP/Python) → vbsec chỉ ghi gợi ý patch vào `vbsec-reports/patches/`, không tự ghi đè.

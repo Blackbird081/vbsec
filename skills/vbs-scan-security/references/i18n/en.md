@@ -185,6 +185,8 @@ Key→text mapping for report output when `lang=en`. SKILL.md and workflows must
 | `msg_autofix_needs_git` | ⚠️ `--auto-fix` requires a git repository (patches are checked and applied with `git apply`). Skipping auto-fix. |
 | `msg_autofix_dirty_tree` | ⚠️ Working tree has uncommitted changes outside the scan scope. Recommend committing or backing up before running `--auto-fix`. |
 | `msg_autofix_snapshot_scope` | ℹ️ Scope `commit id`/`pr id` scans a temporary snapshot, not your working tree — auto-fix only writes patch suggestions to `vbsec-reports/patches/` and does not modify any files. |
+| `msg_autofix_staged_scope` | ℹ️ Scope `staged`: applying a patch only changes the working tree, not the index, so your next commit would still contain the issue. Auto-fix only writes patch suggestions to `vbsec-reports/patches/`; apply the ones you want with `git apply`, then `git add`. |
+| `msg_autofix_needs_run_tests` | ℹ️ Dependency upgrades are only verified by running your project's tests, which can touch real systems (databases, services from `.env`). Add `--run-tests` to allow it; for now they are patch suggestions only. |
 | `autofix_status_applied` | Fixed and build verification passed |
 | `autofix_status_failed` | Could not fix after {n} attempts — needs manual fix |
 | `autofix_status_suggested` | Patch suggestion only (no build command to verify) — see `vbsec-reports/patches/` |

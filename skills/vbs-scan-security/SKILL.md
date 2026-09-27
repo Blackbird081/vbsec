@@ -36,6 +36,7 @@ Quét lỗ hổng bảo mật cho code do AI sinh ra (vibe code). Bộ skill nà
 |---|---|---|
 | `--sca` | `sca` | Tra cứu CVE **live** qua OSV.dev cho dependency (5 ecosystem: NuGet/Go/npm/Composer/PyPI). Xem [`references/dependency-scan.md`](references/dependency-scan.md). Cần network. |
 | `--auto-fix` | `auto-fix` | Tự sinh patch (unified diff) cho finding CRITICAL/HIGH, verify bằng build command, revert nếu fail. Xem [`workflows/auto-fix.md`](workflows/auto-fix.md). **Ghi đè file nguồn** — cần git repo, khuyến nghị working tree sạch trước khi chạy. |
+| `--run-tests` | — | Chỉ có tác dụng cùng `--auto-fix`: cho phép chạy test của project (`go test ./...`, `dotnet test`) để verify bản nâng version dependency. **Test có thể đụng hệ thống thật** (DB, dịch vụ trong `.env`) — chỉ bật khi test an toàn. Không bật → bump dependency chỉ là gợi ý patch. |
 
 Ví dụ:
 ```
@@ -142,12 +143,14 @@ if echo "$ARGS" | grep -qE 'lang=vi|--vi'; then LANG="vi"; fi
 #     Duyệt từng từ thay vì sed \b — BSD sed trên macOS không hỗ trợ \b.
 AUTO_FIX=false
 SCA=false
+RUN_TESTS=false
 SCOPE_WORDS=""
 set -f  # không expand glob khi tách từ
 for w in $ARGS; do
   case "$w" in
     --auto-fix|auto-fix)       AUTO_FIX=true ;;
     --sca|sca)                 SCA=true ;;
+    --run-tests)               RUN_TESTS=true ;;
     lang=vi|lang=en|--vi|--en) ;;
     *)                         SCOPE_WORDS="$SCOPE_WORDS $w" ;;
   esac
@@ -253,7 +256,7 @@ echo "Files: $(echo "$FILES" | wc -l)"
 echo "Report file: $REPORT_FILE"
 echo "Scan root: $SCAN_ROOT"
 echo "SCA (live OSV lookup): $SCA"
-echo "Auto-fix: $AUTO_FIX"
+echo "Auto-fix: $AUTO_FIX (run tests: $RUN_TESTS)"
 [ "$NO_GIT_NOTE" = "true" ] && echo "Note: non-git folder — scanning all files via find"
 [ "$GITIGNORE_WARNING" = "missing" ] && echo "Note: vbsec-reports/ not in .gitignore — will warn user at end"
 ```
@@ -360,7 +363,7 @@ Rule 22 chỉ chạy khi `$SCA=true` — xem Step 4b dưới đây. 21 rules cò
 
 ## Step 4b: SCA Scan (optional — `--sca`)
 
-Chỉ chạy khi `$SCA=true`. Đọc [`references/dependency-scan.md`](references/dependency-scan.md) và follow:
+Chỉ chạy khi `$SCA=true`. Rule 22 KHÔNG được nạp qua `load-rules.sh` (frontmatter `opt_in: --sca`), nên Read [`rules/generic/22-vulnerable-dependency.md`](rules/generic/22-vulnerable-dependency.md) ở bước này. Đọc [`references/dependency-scan.md`](references/dependency-scan.md) và follow:
 
 1. Parse manifest dependency theo ecosystem tương ứng `$PRIMARY_LANG` (NuGet/.NET, Go, npm/TypeScript, Composer/PHP, PyPI/Python) — có thể nhiều ecosystem nếu multi-lang repo.
 2. Query live `https://api.osv.dev/v1/querybatch` rồi `v1/vulns/{id}` cho từng package (dùng Bash tool, đây là 1 trong 2 chỗ duy nhất trong skill được phép gọi network thật — chỗ còn lại là `gh pr diff`).
@@ -376,11 +379,11 @@ Chỉ chạy khi `$SCA=true`. Đọc [`references/dependency-scan.md`](reference
 Chỉ chạy khi `$AUTO_FIX=true`. Chạy **TRƯỚC** khi render report ở Step 5 (để `patch_status` kịp có mặt trong JSON summary và section Auto-fix render đúng vị trí). Đọc [`workflows/auto-fix.md`](workflows/auto-fix.md) và follow toàn bộ workflow đó:
 
 1. Gate: cần `$IS_GIT_REPO=true`, nếu không → in `{msg_autofix_needs_git}`, skip toàn bộ bước này (report vẫn render bình thường ở Step 5, chỉ thiếu section Auto-fix).
-   Nếu `$SCAN_ROOT` khác `.` (scope `commit id`, `pr id`) → chỉ sinh patch, KHÔNG `git apply`/build verify; mọi finding CRITICAL/HIGH là `suggested_only` (xem gate trong workflow).
+   Nếu `$SCAN_ROOT` khác `.` (scope `commit id`, `pr id`) hoặc scope là `staged` → chỉ sinh patch, KHÔNG `git apply`/build verify; mọi finding CRITICAL/HIGH là `suggested_only` (xem gate trong workflow).
 2. Chỉ xử lý finding CRITICAL/HIGH (từ cả rule 1-21 và rule 22 nếu có `--sca`).
 3. Preflight 1 lần: `command -v` build tool + build baseline. Thiếu tool hoặc baseline fail → không apply gì, mọi finding là `suggested_only`.
 4. Với mỗi finding: harvest context → generate unified diff → `git apply --check` → snapshot các file sắp bị ghi → `git apply` → chạy build command theo `$PRIMARY_LANG` → khôi phục từ snapshot + retry (tối đa 2 lần) nếu fail. KHÔNG revert bằng `git checkout` (mất thay đổi chưa commit của user).
-5. Patch dependency chỉ `applied` khi build + test của project pass trên version mới (Go, dotnet; project phải có test). npm/Composer/PyPI luôn là `suggested_only`.
+5. Patch dependency chỉ `applied` khi user bật `--run-tests` và build + test của project pass trên version mới (Go, dotnet; project phải có test). npm/Composer/PyPI luôn là `suggested_only`.
 6. Gắn `patch_status` vào từng finding đã xử lý — dùng ở Step 5 khi render JSON + section Auto-fix.
 
 ---

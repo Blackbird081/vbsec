@@ -2,6 +2,7 @@
 id: VULNERABLE-DEPENDENCY
 severity_max: CRITICAL
 applies_to: all
+opt_in: --sca   # load-rules.sh bỏ qua rule này; Step 4b tự Read khi $SCA=true
 ---
 
 # Vulnerable Dependency (Live CVE — OSV.dev)
@@ -81,7 +82,7 @@ curl -s -X POST https://api.osv.dev/v1/querybatch -H "Content-Type: application/
    pip install <package>==<fixed_version>
    ```
 2. Sau khi bump version, chạy lại restore/install (`dotnet restore`, `npm install`, `go build ./...`, `composer update`, `pip install -r requirements.txt`) để lockfile khớp.
-3. Nếu dùng `--auto-fix` cùng lúc, xem [`../../workflows/auto-fix.md`](../../workflows/auto-fix.md) mục "Special case — dependency-fix patches" — vbsec tự bump version + restore + build verify.
+3. Nếu dùng `--auto-fix` cùng lúc, xem [`../../workflows/auto-fix.md`](../../workflows/auto-fix.md) Bước 3, mục "Patch sửa dependency": Go/dotnet chỉ được bump khi có `--run-tests` và test của project pass trên version mới; npm/Composer/PyPI chỉ có gợi ý patch (`suggested_only`).
 4. Nếu không thể upgrade ngay (breaking change lớn), note rõ risk acceptance trong PR + theo dõi lại ở lần scan sau.
 
 ## Cross-references
