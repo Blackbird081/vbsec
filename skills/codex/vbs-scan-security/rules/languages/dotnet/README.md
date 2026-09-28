@@ -9,6 +9,7 @@ Specialization này áp dụng cho `primary_language: dotnet`, bao phủ C# / AS
 | SQL-INJECTION | `02-sql-injection.md` | EF Core raw SQL (`FromSqlRaw`, `ExecuteSqlRaw`), ADO.NET `SqlCommand` |
 | MASS-ASSIGNMENT | `07-mass-assignment.md` | ASP.NET Core model binding trực tiếp vào entity/domain model |
 | INSECURE-DESERIALIZATION | `08-insecure-deserialization.md` | Newtonsoft `TypeNameHandling`, BinaryFormatter/NetDataContractSerializer/LosFormatter legacy |
+| VERBOSE-ERROR-DEBUG-MODE | `17-verbose-error-debug-mode.md` | `UseDeveloperExceptionPage()` không gate theo môi trường, `ASPNETCORE_ENVIRONMENT=Development` ở deploy production, handler trả stack trace |
 | COMMAND-INJECTION | `21-command-injection.md` | `Process.Start`, `ProcessStartInfo`, shell invocation, unsafe argument construction |
 
 ## Detection notes

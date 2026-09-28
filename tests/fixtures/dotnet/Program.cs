@@ -7,6 +7,7 @@ builder.Services.AddDbContext<ShopDbContext>(o =>
     o.UseSqlServer(builder.Configuration.GetConnectionString("Shop")));
 
 var app = builder.Build();
+app.UseDeveloperExceptionPage();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

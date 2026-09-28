@@ -20,6 +20,11 @@
       "file": "Controllers/ToolsController.cs",
       "rule_id": "COMMAND-INJECTION",
       "min_severity": "HIGH"
+    },
+    {
+      "file": "Program.cs",
+      "rule_id": "VERBOSE-ERROR-DEBUG-MODE",
+      "min_severity": "HIGH"
     }
   ],
   "must_not_find": [
