@@ -25,6 +25,21 @@ OWASP xếp **Broken Access Control là #1** vì AI sinh route nhanh, hay quên 
 - Có auth nhưng thiếu role check (user thường truy cập được data user khác cùng quyền)
 - Internal API có network-level isolation (chỉ accessible từ VPC)
 
+## Khi nào KHÔNG tạo finding — ghi hardening note
+
+"Endpoint này không có auth" tự nó chưa phải lỗ hổng. Chỉ flag thiếu auth/role check khi có **một trong hai bằng chứng**:
+
+1. **Repo có cơ chế auth và endpoint này bị bỏ sót**: có middleware / decorator auth (`RequireUser`, `@login_required`, `[Authorize]`, `auth.Group`, `requireAdmin`...) dùng ở route khác cùng app, còn route này không có. Đặc biệt chú ý middleware đặt **sai chỗ** (`router.use(requireAdmin)` sau khi đã khai báo route, `before_action` có `except`, group auth không bao hết route).
+2. **Bản chất endpoint đòi hỏi quyền**: admin, xoá / sửa dữ liệu người khác, ghi tiền, đọc dữ liệu cá nhân của user khác (email, số dư, đơn hàng), đổi role. Kể cả khi repo chưa có auth nào.
+
+Không có bằng chứng nào trong hai loại trên → **không tạo finding**:
+
+- Repo (hoặc phần code trong scope) **không có cơ chế auth nào** và endpoint chỉ đọc dữ liệu công khai (tìm sản phẩm, xem bài viết, health check, preview): đây là API public hoặc app mẫu chưa có đăng nhập. Ghi **1 hardening note chung** cho cả repo ("chưa có cơ chế auth, cần thêm trước khi đưa dữ liệu nhạy cảm vào"), không tạo finding cho từng endpoint.
+- Endpoint **đã có finding CRITICAL/HIGH của rule khác** (COMMAND-INJECTION, SSRF, SQL-INJECTION...): thiếu auth chỉ làm lỗi đó nặng hơn, không phải lỗi thứ hai. Ghi "endpoint không cần đăng nhập" vào `issue_summary` của finding chính để giải thích severity, KHÔNG tạo thêm BROKEN-ACCESS-CONTROL cùng dòng.
+- Vấn đề thuộc loại "session không hết hạn", "cookie thiếu cờ", "OAuth thiếu state" mà **không chỉ ra được ai chiếm được gì**: hardening note, không gán rule này.
+
+Nếu reasoning của mình có chữ "có thể", "nên có", "tốt hơn nếu" mà không nêu được attacker lấy được dữ liệu / quyền gì → đó là hardening note.
+
 ## Cách reasoning (KHÔNG pattern-match thuần)
 
 1. **Liệt kê routes**: dùng Grep tìm tất cả route definition (`app.get`, `app.post`, `@router.`, `Route::`, etc.)

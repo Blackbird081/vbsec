@@ -395,7 +395,7 @@ Không cần cho rule không applicable (vd: PHP rules trên repo Node — khôn
 |---|---|---|
 | `file` | string | Path tương đối từ scope root |
 | `line` | int | Số nguyên >= 1 (dòng bắt đầu; không dùng `"12-27"`) |
-| `rule_id` | string | Một trong các `id` ở `rules/generic/*.md` (21 rule). KHÔNG tự đặt ID mới |
+| `rule_id` | string | Một trong các `id` ở `rules/generic/*.md` (21 rule). KHÔNG tự đặt ID mới, KHÔNG gán rule gần nhất cho vấn đề không thuộc rule nào (→ `hardening_notes`) |
 | `severity` | string | Viết hoa: `CRITICAL` \| `HIGH` \| `MEDIUM` \| `LOW` |
 | `issue_summary` | string | 1 dòng |
 | `fix_summary` | string | 1 dòng |
@@ -412,7 +412,14 @@ Script báo lỗi → sửa JSON trong report, ghi lại, chạy lại (tối đ
 
 ### Finding vs hardening note
 
-Chỉ tạo **finding** khi có **đường khai thác cụ thể**: input attacker điều khiển được (L1/L2 theo `data-flow-classification.md`) đi tới sink nguy hiểm, hoặc cấu hình sai khai thác được ngay. Nếu chính reasoning của mình kết luận "an toàn" / "safe" / "không khai thác được" → **KHÔNG tạo finding**.
+Chỉ tạo **finding** khi có **đường khai thác cụ thể**: input attacker điều khiển được (L1/L2 theo `data-flow-classification.md`) đi tới sink nguy hiểm, hoặc cấu hình sai khai thác được ngay. Nếu chính reasoning của mình kết luận "an toàn" / "safe" / "không khai thác được" / "not reachable by current code" → **KHÔNG tạo finding**. `validate-report.py` từ chối finding có các cụm này trong `issue_summary` (trừ `OUTDATED-DEPENDENCY` / `VULNERABLE-DEPENDENCY`, nơi "CVE không reachable" chỉ là lý do hạ severity), và từ chối `issue_summary` có chữ "mapped to closest rule" / "rule gần nhất": vấn đề không thuộc 21 rule thì là hardening note, không ép vào rule gần giống. Khi bị từ chối, chọn 1 trong 2: viết lại `issue_summary` nêu rõ attacker làm gì và lấy được gì (nếu thật sự có đường khai thác), hoặc chuyển sang hardening note. Không được chỉ xoá cụm phủ định cho qua validator.
+
+**Ranh giới quan trọng — check viết sai vẫn là finding:** hàm kiểm tra / sanitizer / allowlist **viết sai** (`HasPrefix` thiếu dấu `/` sau `Join`, `endsWith("example.com")` không có dấu chấm, `algorithms` lấy từ header token, regex thiếu anchor, check `..` trước khi decode...) **LUÔN là finding**, kể cả khi hiện tại có yếu tố khác đang chặn khai thác (phiên bản thư viện, chưa có thư mục sibling, auth đang dùng Bearer). Lỗi nằm trong code của repo; yếu tố chặn nằm ngoài tầm kiểm soát và đổi bất cứ lúc nào. Cách ghi: giữ finding, hạ severity xuống MEDIUM nếu cần, `issue_summary` nêu điều kiện để bypass thành công ("bypass khi có thư mục `/srv/wallet/files-*`", "bypass nếu đổi sang thư viện không kiểm key type"). Không viết "not exploitable". Chỉ chuyển sang hardening note khi **input attacker không tới được sink** hoặc code không có lỗi mà chỉ thiếu một lớp phòng thủ thêm.
+
+Ba lỗi hay gặp làm báo cáo nhiễu, đều KHÔNG phải finding:
+- Tạo finding rồi tự ghi "không khai thác được" cho lỗi logic/cấu hình (khác với dependency có CVE: đó vẫn là finding, chỉ hạ severity).
+- Gán `BROKEN-ACCESS-CONTROL` cho mọi endpoint không có auth trong repo chưa có cơ chế auth nào, hoặc cho endpoint đã có finding CRITICAL khác (xem rule 12 mục "Khi nào KHÔNG tạo finding").
+- Gán `JWT-NONE-ALGORITHM` / `BROKEN-ACCESS-CONTROL` cho "token không hết hạn", "session không TTL" khi không chỉ ra được ai lấy được token.
 
 Gợi ý phòng thủ thêm cho code đã an toàn (thêm header `nosniff`, cờ cookie khi không có XSS nào, bật `EMULATE_PREPARES=false`, commit lockfile, đặt timeout...) → ghi vào `hardening_notes[]` và section `{header_hardening_title}`. Không gán `rule_id`, không tính vào `summary`, không ảnh hưởng verdict.
 

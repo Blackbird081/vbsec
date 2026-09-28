@@ -131,7 +131,7 @@ Use EN canonical (do not translate). Format:
 
 **ONLY use the 21 canonical rule IDs listed above.** Do NOT invent new rule IDs like `INSECURE-COOKIE`, `AUTH-BYPASS`, `WEAK-CRYPTO`, `DATA-IN-URL`, `OAUTH-MISCONFIG`, `SUPPLY-CHAIN`, `INFO-DISCLOSURE`, `DATA-AT-REST`, `DEPRECATED-API`, `INSECURE-SESSION`, etc.
 
-When you encounter a real security issue that doesn't obviously fit one of the 21 IDs, map it to the closest canonical rule using this mapping table:
+An issue that does not fit one of the 21 IDs is **usually not a finding**. Ask first: can an attacker actually obtain data, money or privileges through it, right now, in this code? If not, it goes to `## HARDENING_NOTES` (see below), never into findings. Only when there IS a concrete exploit path, pick the canonical rule whose *impact* matches, using this table. Never write "mapped to the closest rule" in `issue`: describe the exploit instead.
 
 | If you'd want to call it... | Use this canonical ID instead | Note in `issue` |
 |---|---|---|
@@ -146,7 +146,11 @@ When you encounter a real security issue that doesn't obviously fit one of the 2
 | INFO-DISCLOSURE (robots.txt leak, .git exposed) | `VERBOSE-ERROR-DEBUG-MODE` | "information disclosure: ..." |
 | DEPRECATED-API (apt-key, old syscall) | `OUTDATED-DEPENDENCY` | "deprecated API: ..." |
 
-Only map when there is a **concrete exploit path** (attacker-controlled input reaches the sink, or a misconfiguration is exploitable as-is). Defense-in-depth suggestions for code that is already safe — missing lockfile, cookie flags with no XSS present, extra headers, stricter PDO options — are NOT findings: list them under `## HARDENING_NOTES` at the end of your findings file (one line each: `file:line — note`). If your own reasoning concludes the code is safe, do not emit a finding.
+Only map when there is a **concrete exploit path** (attacker-controlled input reaches the sink, or a misconfiguration is exploitable as-is). Defense-in-depth suggestions for code that is already safe — missing lockfile, cookie flags with no XSS present, extra headers, stricter PDO options, tokens without expiry, session without TTL when nothing leaks it — are NOT findings: list them under `## HARDENING_NOTES` at the end of your findings file (one line each: `file:line — note`).
+
+Two hard rules the main agent's validator enforces, so a violation costs a retry:
+- If your own reasoning concludes the code is safe, not reachable, not exploitable, or "defense in depth only", do **not** emit a finding. A finding whose `issue` contains such a phrase is rejected. Exception that goes the other way: a check or sanitizer that is **written wrong** (`HasPrefix` without trailing `/` after `Join`, `endsWith("example.com")` without the dot, `algorithms` taken from the token header, regex without anchors) is **always a finding** even if something outside the code currently blocks the exploit (library version, no sibling directory yet). Keep it, lower severity to MEDIUM if you must, and state the bypass condition in `issue` instead of writing "not exploitable".
+- "Endpoint has no auth" is a finding only when the repo has an auth middleware used on other routes and this route was left out, or when the endpoint by nature needs a privilege (admin, delete, money, other users' data). A repo with no auth at all gets one hardening note, not one BROKEN-ACCESS-CONTROL per route. Do not add BROKEN-ACCESS-CONTROL to a line that already has a CRITICAL finding of another rule; mention "unauthenticated" in that finding's `issue` instead.
 
 If you genuinely cannot map a finding to any of the 21 rules, **skip it** and mention it ONLY in the `## NOT_MAPPED` section at the end of your findings file (see format below) — main agent will decide whether to surface or propose adding a new rule in future versions.
 
