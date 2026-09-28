@@ -88,9 +88,10 @@ def validate(report_path):
         m = SELF_NEGATING.search(issue_text)
         if m and rid not in DEPENDENCY_RULES:
             errors.append(f"{where}: issue_summary tự phủ định (\"{m.group(0)}\"). Chọn 1 trong 2: "
-                          f"(a) có đường khai thác thật → viết lại issue_summary nêu attacker làm gì, lấy được gì, bỏ cụm phủ định; "
-                          f"(b) không nêu được → xoá khỏi `findings[]`, ghi vào `hardening_notes[]` (không rule_id), "
-                          f"cập nhật `summary` và verdict")
+                          f"(a) lỗi nằm trong code (check/sanitizer viết sai, input tới được sink) → GIỮ finding, hạ severity nếu cần, "
+                          f"viết lại issue_summary nêu attacker làm gì và điều kiện bypass, bỏ cụm phủ định; "
+                          f"(b) input attacker không tới được sink, chỉ là lớp phòng thủ thêm → xoá khỏi `findings[]`, "
+                          f"ghi vào `hardening_notes[]` (không rule_id), cập nhật `summary` và verdict")
         sev = f.get("severity")
         if sev is not None and sev not in SEVERITIES:
             errors.append(f"{where}: severity phải viết hoa CRITICAL/HIGH/MEDIUM/LOW, đang là {sev!r}")
