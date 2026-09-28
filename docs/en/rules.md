@@ -473,21 +473,22 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 **Severity max:** HIGH
 **Applies to:** all
 
-Heavy endpoints (search, export, AI inference) with no rate limit. A single user firing 1000 req/s causes DoS.
+Public endpoints where every request costs real money or hits another person (LLM / paid APIs, sending email or SMS, checking OTP or coupon codes, creating payments) with no rate limit, cooldown or captcha. Endpoints that are merely CPU-heavy (search, export, image resize) or that already carry a CRITICAL finding are hardening notes, not findings.
 
 **Unsafe (Express):**
 ```javascript
-app.get('/api/search', async (req, res) => {
-  const results = await heavyDbQuery(req.query.q);
-  res.json(results);
+app.post('/api/forgot-password', async (req, res) => {
+  const user = await findUserByEmail(req.body.email);
+  if (user) await sendMail(user.email, 'Reset password', link);   // 1000 req/min → mail-bomb the victim, burn the mail budget
+  res.json({ ok: true });
 });
 ```
 
 **Safe:**
 ```javascript
 const rateLimit = require('express-rate-limit');
-const searchLimit = rateLimit({ windowMs: 60_000, max: 30 });
-app.get('/api/search', searchLimit, async (req, res) => { ... });
+const resetLimit = rateLimit({ windowMs: 60 * 60_000, max: 3, keyGenerator: req => req.body.email });
+app.post('/api/forgot-password', resetLimit, async (req, res) => { ... });
 ```
 
 [Full reasoning →](../../skills/vbs-scan-security/rules/generic/18-missing-rate-limit.md)
