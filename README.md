@@ -209,8 +209,7 @@ Edit rules in the canonical `skills/vbs-scan-security/`, then run `./scripts/syn
 
 ### Roadmap
 
-- Done: general rules; dedicated rules for Go, PHP, TypeScript/JavaScript, Python, .NET/C#; three platforms; scanning without git
-- In progress: online CVE lookup via OSV.dev (`--sca`), automatic fixes verified by building (`--auto-fix`)
+- Done: general rules; dedicated rules for Go, PHP, TypeScript/JavaScript, Python, .NET/C#; three platforms; scanning without git; online CVE lookup via OSV.dev (`--sca`, opt-in, needs network); automatic fixes verified by building (`--auto-fix`, opt-in, needs git). See [usage](docs/en/usage.md#live-dependency-scan---sca)
 - Next: Ruby, Java, Rust, driven by community demand
 
 ## License

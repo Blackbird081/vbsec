@@ -210,8 +210,7 @@ Sửa luật ở bản gốc `skills/vbs-scan-security/`, rồi chạy `./script
 
 ### Lộ trình
 
-- Đã có: luật chung, chuyên sâu Go, PHP, TypeScript/JavaScript, Python, .NET/C#; ba nền tảng; quét không cần git
-- Đang làm: tra CVE trực tuyến qua OSV.dev (`--sca`), tự sửa lỗi và kiểm build (`--auto-fix`)
+- Đã có: luật chung, chuyên sâu Go, PHP, TypeScript/JavaScript, Python, .NET/C#; ba nền tảng; quét không cần git; tra CVE trực tuyến qua OSV.dev (`--sca`, mặc định tắt, cần mạng); tự sửa lỗi và kiểm build (`--auto-fix`, mặc định tắt, cần git). Xem [hướng dẫn](docs/vi/usage.md#quét-dependency-live---sca)
 - Tiếp theo: Ruby, Java, Rust theo nhu cầu cộng đồng
 
 ## Giấy phép

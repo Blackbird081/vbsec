@@ -10,7 +10,10 @@
 # cắt output dài (~30.000 ký tự). Dòng cuối mỗi phần cho biết tổng số phần; chạy đủ
 # mọi phần (có thể chạy song song). Không truyền --part = in phần 1.
 #
-# Với mỗi rule generic (01-21):
+# Rule generic có `opt_in:` trong frontmatter (vd rule 22, chỉ chạy khi có --sca) KHÔNG được nạp ở
+# pha quét — workflow tương ứng tự Read rule đó khi user bật cờ.
+#
+# Với mỗi rule generic còn lại (01-21):
 #   - Mọi lang đã detect đều có overlay cùng `id` → chỉ in overlay (generic bị thay thế hoàn toàn).
 #   - Ngược lại → in generic, kèm overlay của lang nào có.
 # Mỗi file chỉ in tới trước heading chi tiết đầu tiên (## Examples / ## Fix recommendation /
@@ -33,6 +36,7 @@ while [ $# -gt 0 ]; do
 done
 
 rule_id() { sed -n 's/^id:[[:space:]]*//p' "$1" | head -1; }
+is_opt_in() { sed -n '/^---$/,/^---$/p' "$1" | grep -q '^opt_in:'; }
 
 overlay_for() {  # overlay_for <lang> <id> → path hoặc rỗng
   local dir="$SKILL_DIR/rules/languages/$1" f
@@ -53,6 +57,7 @@ detection() {  # detection <path> → phần phát hiện của 1 rule, kèm hea
 FILES_SELECTED=()
 
 for generic in "$SKILL_DIR"/rules/generic/[0-9]*.md; do
+  is_opt_in "$generic" && continue
   id="$(rule_id "$generic")"
   overlays=()
   all_covered=1
