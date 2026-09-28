@@ -473,21 +473,22 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 **Severity max:** HIGH
 **Applies to:** all
 
-Endpoint nặng (search, export, AI inference) không có rate limit. 1 user gửi 1000 req/s là DoS.
+Endpoint public mà mỗi request tốn tiền thật hoặc đánh vào người khác (gọi LLM / API trả phí, gửi email hoặc SMS, kiểm mã OTP hoặc mã khuyến mãi, tạo thanh toán) nhưng không có rate limit, cooldown hay captcha. Endpoint chỉ tốn CPU (search, export, resize ảnh) hoặc đã có finding CRITICAL khác thì là hardening note, không phải finding.
 
 **Unsafe (Express):**
 ```javascript
-app.get('/api/search', async (req, res) => {
-  const results = await heavyDbQuery(req.query.q);
-  res.json(results);
+app.post('/api/forgot-password', async (req, res) => {
+  const user = await findUserByEmail(req.body.email);
+  if (user) await sendMail(user.email, 'Reset password', link);   // 1000 req/phút → dội bom mail nạn nhân, đốt tiền gửi mail
+  res.json({ ok: true });
 });
 ```
 
 **Safe:**
 ```javascript
 const rateLimit = require('express-rate-limit');
-const searchLimit = rateLimit({ windowMs: 60_000, max: 30 });
-app.get('/api/search', searchLimit, async (req, res) => { ... });
+const resetLimit = rateLimit({ windowMs: 60 * 60_000, max: 3, keyGenerator: req => req.body.email });
+app.post('/api/forgot-password', resetLimit, async (req, res) => { ... });
 ```
 
 [Đầy đủ →](../../skills/vbs-scan-security/rules/generic/18-missing-rate-limit.md)
